@@ -1,0 +1,11 @@
+{
+  "name": "@ton-anywhere/omp-handoff-switch",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "bun test tests"
+  },
+  "omp": {
+    "extensions": ["./src/index.ts"]
+  }
+}
