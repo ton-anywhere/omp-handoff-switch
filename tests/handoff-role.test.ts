@@ -1,5 +1,28 @@
-import { expect, test } from "bun:test";
+import { afterAll, beforeAll, expect, test } from "bun:test";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import * as path from "node:path";
+import { getActiveProfile, getAgentDir, setAgentDir, setProfile } from "@oh-my-pi/pi-utils/dirs";
 import handoffRole from "../src/index";
+
+const originalAgentDir = getAgentDir();
+const originalProfile = getActiveProfile();
+const originalOverride = process.env.PI_CODING_AGENT_DIR;
+let testAgentDir: string;
+
+beforeAll(async () => {
+	testAgentDir = await mkdtemp(path.join(tmpdir(), "handoff-handlers-"));
+	await writeFile(path.join(testAgentDir, "handoff-switch.yml"), "handoff:\n  model: smol\n");
+	setAgentDir(testAgentDir);
+});
+
+afterAll(async () => {
+	if (originalProfile) setProfile(originalProfile);
+	else setAgentDir(originalAgentDir);
+	if (originalOverride === undefined) delete process.env.PI_CODING_AGENT_DIR;
+	else process.env.PI_CODING_AGENT_DIR = originalOverride;
+	await rm(testAgentDir, { recursive: true, force: true });
+});
 
 type Model = { provider: string; id: string };
 type Handler = (event: never, ctx: never) => Promise<unknown>;

@@ -1,16 +1,60 @@
 # OMP Handoff Switch
 
-Temporarily uses a configured OMP model role for interactive `/handoff` and non-speculative automatic handoff, then restores the previous model. Native `/handoff` keeps its focus argument.
+This is an [OMP](https://omp.sh/) extension that enables model role configuration for handoff compactions. It works for interactive `/handoff` and non-speculative automatic handoff.
 
-Install from this checkout with `omp plugin link /path/to/checkout`, or from a published Git tag with `omp plugin install 'github:ton-anywhere/omp-handoff-switch#TAG'`. Remove any directly loaded copy under `~/.omp/agent/extensions/` first to avoid duplicate listeners. Restart OMP after installing or changing the extension. In `handoff-switch.yml`, set `handoff.model` to an existing OMP model role **without** `@`:
+It works by updating the active model to `handoff.model` during a handoff, then restoring the previous model afterward.
+
+## Install & Usage
+
+1. Install from GitHub
+
+```bash
+omp plugin install 'github:ton-anywhere/omp-handoff-switch'
+```
+
+2. On first load, the extension creates `handoff-switch.yml` beside the active profile's `config.yml`. Edit `handoff.model` to select an existing OMP model role **without** `@`. The default profile uses `~/.omp/agent/handoff-switch.yml`; a named profile normally uses `~/.omp/profiles/<name>/agent/handoff-switch.yml`:
 
 ```yml
 handoff:
   model: smol
 ```
 
-Set `compaction.asyncEnabled: false` in OMP settings; speculative handoffs may generate before the model switch. Restart OMP after editing `handoff-switch.yml` (read at initialization).
+3. In the active profile's `config.yml`, set
+
+```yml
+compaction:
+  enabled: true
+  asyncEnabled: false
+```
+4. (optional) For *auto-handoff*, check whether handoff is available in `compaction.methodOrder`.
+
+```yml
+compaction:
+  methodOrder:
+    - remote
+    - handoff
+    - shake
+    - soft
+``` 
+
+5. Restart OMP or `/reload-plugins`.
+
+The next `/handoff` or automatic handoff will be processed by the model configured in `handoff.model` (default: **smol**).
+
+## Commands
 
 Run checks from this checkout with `bun run test`.
 
-**Best effort:** cancelled or failed manual handoffs may leave the handoff model selected; restoration does not recover thinking level if switching models clamped it. Verify the selected model after a failed handoff.
+Verify install with `omp plugin list`
+
+Uninstall with `omp plugin uninstall @ton-anywhere/omp-handoff-switch`.
+
+## Limitations
+
+**Best effort:** Cancelled or failed manual handoffs may leave the handoff model selected; speculative handoffs can switch the model while that model is being used.
+
+---
+
+## License
+
+MIT © 2026 [Ton Anywhere](https://github.com/ton-anywhere)

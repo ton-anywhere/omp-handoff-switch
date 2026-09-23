@@ -18,9 +18,11 @@
  * Prerequisite: `compaction.asyncEnabled: false` in the effective OMP settings
  * (otherwise a speculative handoff can generate before the switch lands).
  *
- * Config: `handoff-switch.yml` at the plugin root:
+ * Config: `handoff-switch.yml` in the active OMP profile's agent directory:
  *   handoff:
  *     model: smol
+ * Created from the packaged default on first load; restart or reload plugins
+ * after editing the profile file.
  * `"model"` is a model role name without `@`; `"handoff"` selects an assigned
  * custom handoff role. The role is resolved at each trigger so later
  * role/model assignments take effect.
@@ -34,12 +36,9 @@
  * - the current-target guard avoids clobbering a user-selected *different*
  *   model but is not atomic.
  */
-import type { ExtensionAPI, ExtensionContext } from "@oh-my-pi/pi-coding-agent";
-import type { Model } from "@oh-my-pi/pi-catalog/types";
+import { getAgentDir } from "@oh-my-pi/pi-utils/dirs";
 import * as path from "node:path";
-import { YAML } from "bun";
-
-const CONFIG_PATH = path.join(import.meta.dir, "..", "handoff-switch.yml");
+import { readHandoffRole, setupHandoffRole } from "./setup";
 
 interface PendingSwitch {
 	source: "manual" | "auto";
@@ -50,9 +49,10 @@ interface PendingSwitch {
 const HANDOFF_INPUT = /^\/handoff(?:\s|$)/;
 
 export default async function handoffRole(pi: ExtensionAPI): Promise<void> {
-	const role = await loadRole(CONFIG_PATH);
+	const configPath = path.join(getAgentDir(), "handoff-switch.yml");
+	if (!(await Bun.file(configPath).exists())) await setupHandoffRole();
+	const role = await readHandoffRole();
 	const pending = new Map<string, PendingSwitch>();
-
 	const modelKey = (m: Model) => `${m.provider}/${m.id}`;
 
 	/** Drop pending records from sessions that are no longer the active one. */
@@ -136,25 +136,4 @@ export default async function handoffRole(pi: ExtensionAPI): Promise<void> {
 		if (event.action !== "handoff") return;
 		await restore("auto", ctx);
 	});
-}
-
-async function loadRole(configPath: string): Promise<string> {
-	let raw: unknown;
-	try {
-		raw = YAML.parse(await Bun.file(configPath).text());
-	} catch (err) {
-		throw new Error(`handoff-role: cannot load config ${configPath}: ${err instanceof Error ? err.message : String(err)}`);
-	}
-	if (typeof raw !== "object" || raw === null || !("handoff" in raw)) {
-		throw new Error(`handoff-role: config ${configPath} must have a handoff mapping with a model role`);
-	}
-	const handoff = (raw as { handoff: unknown }).handoff;
-	if (typeof handoff !== "object" || handoff === null) {
-		throw new Error(`handoff-role: "handoff" in ${configPath} must be an object`);
-	}
-	const role = (handoff as { model?: unknown }).model;
-	if (typeof role !== "string" || role.length === 0 || role.startsWith("@")) {
-		throw new Error(`handoff-role: "handoff.model" in ${configPath} must be a non-empty role name without "@" prefix`);
-	}
-	return role;
 }
