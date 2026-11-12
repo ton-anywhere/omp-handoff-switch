@@ -1,6 +1,6 @@
 # OMP Handoff Switch
 
-This is an [OMP](https://omp.sh/) extension that enables model role configuration for handoff compactions. It works for interactive `/handoff` and non-speculative automatic handoff.
+This is an [OMP](https://omp.sh/) plugin that enables model role configuration for handoff compactions. It works for interactive `/handoff` and non-speculative automatic handoff.
 
 It works by updating the active model to `handoff.model` during a handoff, then restoring the previous model afterward.
 
@@ -12,7 +12,7 @@ It works by updating the active model to `handoff.model` during a handoff, then 
 omp plugin install 'github:ton-anywhere/omp-handoff-switch'
 ```
 
-2. On first load, the extension creates `handoff-switch.yml` beside the active profile's `config.yml`. Edit `handoff.model` to select an existing OMP model role **without** `@`. The default profile uses `~/.omp/agent/handoff-switch.yml`; a named profile normally uses `~/.omp/profiles/<name>/agent/handoff-switch.yml`:
+2. On first load, the plugin creates `handoff-switch.yml` beside the active profile's `config.yml`. Edit `handoff.model` to select an existing OMP model role **without** `@`. The default profile uses `~/.omp/agent/handoff-switch.yml`; a named profile normally uses `~/.omp/profiles/<name>/agent/handoff-switch.yml`:
 
 ```yml
 handoff:

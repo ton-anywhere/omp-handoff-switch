@@ -30,7 +30,7 @@
  * Explicit v0 limitations (best effort — NOT request-scoped isolation):
  * - a failed manual handoff, Esc cancellation, blocked native precondition
  *   after the switch, or a concurrent user model change can leave the target
- *   model selected until extension reload/restart;
+ *   model selected until plugin reload/restart;
  * - restoring the original Model does not restore a pre-handoff thinking
  *   selection if the target clamped it;
  * - the current-target guard avoids clobbering a user-selected *different*
