@@ -1,6 +1,6 @@
 # OMP Handoff Switch
 
-This is an [OMP](https://omp.sh/) plugin that enables model role configuration for handoff compactions. It works for interactive `/handoff` and non-speculative automatic handoff.
+This is an [OMP](https://omp.sh/) plugin that enables model role configuration for handoff compactions. It works for interactive `/handoff` (and its native `/compact handoff` spelling) and non-speculative automatic handoff.
 
 It works by updating the active model to `handoff.model` during a handoff, then restoring the previous model afterward.
 
@@ -51,7 +51,7 @@ Uninstall with `omp plugin uninstall @ton-anywhere/omp-handoff-switch`.
 
 ## Limitations
 
-**Best effort:** Cancelled or failed manual handoffs may leave the handoff model selected; speculative handoffs can switch the model while that model is being used.
+**Best effort:** Cancelled or failed manual handoffs may leave the handoff model selected; speculative handoffs can switch the model while that model is being used. Restoring the original model does not restore a pre-handoff thinking level if the handoff model clamped it, and the current-model guard is not atomic.
 
 ---
 

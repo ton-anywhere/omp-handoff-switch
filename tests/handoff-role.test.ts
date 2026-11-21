@@ -72,6 +72,27 @@ test("manual handoff switches model and restores it after compaction without con
 	expect(t.changes).toEqual(switchSequence);
 });
 
+test("the /compact handoff spelling switches model and restores it after compaction", async () => {
+	const t = await setup();
+	expect(await t.emit("input", { text: "/compact handoff focus", source: "interactive" })).toBeUndefined();
+	await t.emit("session_compact", compact);
+	expect(t.changes).toEqual(switchSequence);
+});
+
+test("the /compact handoff spelling accepts a colon separator and uppercase mode", async () => {
+	const t = await setup();
+	await t.emit("input", { text: "/compact:HANDOFF", source: "interactive" });
+	expect(t.changes).toEqual(["remote/smol"]);
+});
+
+test("other /compact modes and look-alike tokens do not switch model", async () => {
+	const t = await setup();
+	await t.emit("input", { text: "/compact soft", source: "interactive" });
+	await t.emit("input", { text: "/compact", source: "interactive" });
+	await t.emit("input", { text: "/compact handoffs focus", source: "interactive" });
+	expect(t.changes).toEqual([]);
+});
+
 test("automatic handoff restores model even when no compaction commits", async () => {
 	const t = await setup();
 	await t.emit("auto_compaction_start", start);
