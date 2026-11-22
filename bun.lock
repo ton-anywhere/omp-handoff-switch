@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@ton-anywhere/omp-handoff-switch",
+      "name": "@tonanywhere/omp-handoff-switch",
       "dependencies": {
         "@oh-my-pi/pi-utils": "18.2.11",
       },

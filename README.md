@@ -9,7 +9,7 @@ It works by updating the active model to `handoff.model` during a handoff, then 
 1. Install from GitHub
 
 ```bash
-omp plugin install 'github:ton-anywhere/omp-handoff-switch'
+omp plugin install 'github:tonanywhere/omp-handoff-switch'
 ```
 
 2. On first load, the plugin creates `handoff-switch.yml` beside the active profile's `config.yml`. Edit `handoff.model` to select an existing OMP model role **without** `@`. The default profile uses `~/.omp/agent/handoff-switch.yml`; a named profile normally uses `~/.omp/profiles/<name>/agent/handoff-switch.yml`:
@@ -47,7 +47,7 @@ Run checks from this checkout with `bun run test`.
 
 Verify install with `omp plugin list`
 
-Uninstall with `omp plugin uninstall @ton-anywhere/omp-handoff-switch`.
+Uninstall with `omp plugin uninstall @tonanywhere/omp-handoff-switch`.
 
 ## Limitations
 
@@ -57,4 +57,4 @@ Uninstall with `omp plugin uninstall @ton-anywhere/omp-handoff-switch`.
 
 ## License
 
-MIT © 2026 [Ton Anywhere](https://github.com/ton-anywhere)
+MIT © 2026 [Ton Anywhere](https://github.com/tonanywhere)
